@@ -7,8 +7,11 @@ FROM mysql:8.0
 # subdirectory), but the official image only ships english/errmsg.sys. Copying
 # the file to the expected location fixes initialisation in BuildKit environments
 # where the compiled-in default path lookup fails.
-RUN mkdir -p /mysqldata && chown mysql:mysql /mysqldata && \
-    cp /usr/share/mysql-8.0/english/errmsg.sys /usr/share/mysql-8.0/errmsg.sys && \
+RUN set -x; \
+    mkdir -p /mysqldata; \
+    chown mysql:mysql /mysqldata; \
+    cp /usr/share/mysql-8.0/english/errmsg.sys /usr/share/mysql-8.0/errmsg.sys; \
+    ls -la /usr/share/mysql-8.0/errmsg.sys; \
     mysqld --initialize-insecure --datadir=/mysqldata --user=mysql && \
     mysqld --datadir=/mysqldata --user=mysql --skip-networking & \
     until mysqladmin -u root ping --silent 2>/dev/null; do sleep 0.1; done && \
