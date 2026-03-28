@@ -8,6 +8,7 @@ FROM mysql:8.0
 # instead of the english/ subdir. Passing --lc-messages-dir and --lc-messages
 # explicitly avoids any dependence on the OS locale environment.
 RUN mkdir -p /mysqldata && chown mysql:mysql /mysqldata && \
+    ls /usr/share/mysql-8.0/ && \
     mysqld --initialize-insecure --datadir=/mysqldata --user=mysql \
            --lc-messages-dir=/usr/share/mysql-8.0 --lc-messages=en_US && \
     mysqld --datadir=/mysqldata --user=mysql --skip-networking \
