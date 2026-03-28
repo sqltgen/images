@@ -23,6 +23,8 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate seed data
+        run: db/mysql/generate-seed.sh
       - uses: docker/build-push-action@v6
         with:
           context: db/mysql

@@ -6,7 +6,7 @@ SQLTGEN  ?= ../sqltgen
 .PHONY: build-all build-dev-node build-dev-python build-dev-jvm build-dev-go build-dev-rust build-db-postgres build-db-mysql
 .PHONY: test-all  test-dev-node  test-dev-python  test-dev-jvm  test-dev-go  test-dev-rust  test-db-postgres  test-db-mysql
 .PHONY: verify-node verify-python verify-jvm verify-go verify-rust
-.PHONY: ci-build
+.PHONY: seed-db-mysql ci-build
 
 # ── CI build simulation ────────────────────────────────────────────────────────
 # Builds one image using the docker-container BuildKit driver, which matches
@@ -45,7 +45,10 @@ build-dev-rust:
 build-db-postgres:
 	docker build -t $(REGISTRY)/db-postgres:$(TAG) db/postgres
 
-build-db-mysql:
+seed-db-mysql:
+	db/mysql/generate-seed.sh
+
+build-db-mysql: seed-db-mysql
 	docker build -t $(REGISTRY)/db-mysql:$(TAG) db/mysql
 
 # ── Smoke test ─────────────────────────────────────────────────────────────────
