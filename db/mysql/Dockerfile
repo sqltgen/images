@@ -1,13 +1,13 @@
 FROM mysql:8.0
 
+# BuildKit's docker-container driver runs with no locale set, which causes
+# mysqld to look for errmsg.sys directly in the messages dir instead of the
+# english/ subdir. Setting LANG fixes the lookup without touching any files.
+ENV LANG=C.UTF-8
+
 # Use a path outside the VOLUME declared by the base image (/var/lib/mysql),
 # otherwise Docker discards RUN writes to that path at build time.
-#
-# BuildKit's docker-container driver runs with no locale set, so mysqld looks
-# for errmsg.sys directly in the messages dir instead of the english/ subdir.
-# Copying the file to the expected location avoids symlink resolution issues.
 RUN mkdir -p /mysqldata && chown mysql:mysql /mysqldata && \
-    cp /usr/share/mysql-8.0/english/errmsg.sys /usr/share/mysql-8.0/errmsg.sys && \
     mysqld --initialize-insecure --datadir=/mysqldata --user=mysql && \
     mysqld --datadir=/mysqldata --user=mysql --skip-networking & \
     until mysqladmin -u root ping --silent 2>/dev/null; do sleep 0.1; done && \
