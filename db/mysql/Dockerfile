@@ -3,17 +3,15 @@ FROM mysql:8.0
 # Use a path outside the VOLUME declared by the base image (/var/lib/mysql),
 # otherwise Docker discards RUN writes to that path at build time.
 #
-# MySQL 8.0.36+ looks for errmsg.sys directly in lc-messages-dir (no language
-# subdirectory), but the official image only ships english/errmsg.sys. Copying
-# the file to the expected location fixes initialisation in BuildKit environments
-# where the compiled-in default path lookup fails.
-RUN set -x; \
-    mkdir -p /mysqldata; \
-    chown mysql:mysql /mysqldata; \
-    cp /usr/share/mysql-8.0/english/errmsg.sys /usr/share/mysql-8.0/errmsg.sys; \
-    ls -la /usr/share/mysql-8.0/errmsg.sys; \
-    mysqld --initialize-insecure --datadir=/mysqldata --user=mysql && \
-    mysqld --datadir=/mysqldata --user=mysql --skip-networking & \
+# MySQL 8.0.36+ looks for errmsg.sys directly at the root of lc-messages-dir
+# (no language subdirectory). The official image only ships it under english/.
+# Pointing --lc-messages-dir at english/ makes both init and the warmup server
+# find the file without modifying the image filesystem.
+RUN mkdir -p /mysqldata && chown mysql:mysql /mysqldata && \
+    mysqld --initialize-insecure --datadir=/mysqldata --user=mysql \
+           --lc-messages-dir=/usr/share/mysql-8.0/english && \
+    mysqld --datadir=/mysqldata --user=mysql --skip-networking \
+           --lc-messages-dir=/usr/share/mysql-8.0/english & \
     until mysqladmin -u root ping --silent 2>/dev/null; do sleep 0.1; done && \
     mysql -u root -p"" -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'sqltgen_root';" && \
     mysql -u root -psqltgen_root -e "CREATE USER 'root'@'%' IDENTIFIED BY 'sqltgen_root';" && \
