@@ -5,8 +5,8 @@ FROM mysql:8.0
 # Initialize and create the sqltgen user/database WITHOUT any custom config
 # so that MySQL can find its own message files in BuildKit's environment.
 RUN mkdir -p /mysqldata && chown mysql:mysql /mysqldata && \
-    mysqld --initialize-insecure --datadir=/mysqldata --user=mysql && \
-    mysqld --datadir=/mysqldata --user=mysql --skip-networking & \
+    mysqld --initialize-insecure --datadir=/mysqldata --user=mysql --lc-messages=en_US && \
+    mysqld --datadir=/mysqldata --user=mysql --lc-messages=en_US --skip-networking & \
     until mysqladmin -u root ping --silent 2>/dev/null; do sleep 0.2; done && \
     mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'sqltgen_root';" && \
     mysql -u root -psqltgen_root -e "CREATE USER 'root'@'%' IDENTIFIED BY 'sqltgen_root';" && \
