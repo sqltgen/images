@@ -6,6 +6,22 @@ SQLTGEN  ?= ../sqltgen
 .PHONY: build-all build-dev-node build-dev-python build-dev-jvm build-dev-go build-dev-rust build-db-postgres build-db-mysql
 .PHONY: test-all  test-dev-node  test-dev-python  test-dev-jvm  test-dev-go  test-dev-rust  test-db-postgres  test-db-mysql
 .PHONY: verify-node verify-python verify-jvm verify-go verify-rust
+.PHONY: ci-build
+
+# ── CI build simulation ────────────────────────────────────────────────────────
+# Builds one image using the docker-container BuildKit driver, which matches
+# what GitHub Actions uses. Catches issues that the default local driver hides.
+#
+# Usage:
+#   make ci-build IMAGE=db/mysql
+#   make ci-build IMAGE=toolchain/rust
+
+IMAGE ?= (set IMAGE to a context path, e.g. db/mysql)
+
+ci-build:
+	docker buildx create --name ci-builder --driver docker-container --use
+	docker buildx build --load -t $(REGISTRY)/$(subst /,-,$(IMAGE)):$(TAG) $(IMAGE); \
+	  docker buildx rm ci-builder
 
 # ── Build ──────────────────────────────────────────────────────────────────────
 

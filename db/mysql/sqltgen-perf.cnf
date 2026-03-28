@@ -1,9 +1,0 @@
-[mysqld]
-datadir                          = /mysqldata
-innodb_flush_log_at_trx_commit   = 0
-innodb_doublewrite               = 0
-innodb_buffer_pool_size          = 8M
-skip_ssl
-skip_log_bin
-skip_performance_schema
-skip_name_resolve
