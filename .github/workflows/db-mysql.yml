@@ -7,6 +7,7 @@ on:
   pull_request:
     branches: [main]
     paths: ['db/mysql/**']
+  workflow_dispatch:
 
 jobs:
   build:
